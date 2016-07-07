@@ -1,114 +1,80 @@
-package com.samplejsonparsing;
+package proveb.gk.com.sqlite;
+
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
-import com.samplejsonparsing.adapter.CustomAdapterForListView;
-import com.samplejsonparsing.connectionclasses.ConnectionDetector;
-import com.samplejsonparsing.model.CountryData;
-
-import org.apache.http.Header;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
+import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
-public class MainActivity extends AppCompatActivity {
-    private ListView ll_country_list;
-    private TextView tv_heading;
-    ConnectionDetector cd;
-    private ArrayList<CountryData> countryDataArrayList;
-    private ArrayList<CountryData> countryDataArrayList1;
-    public CountryData countryData;
-    CustomAdapterForListView customAdapterForListView;
+
+public class MainActivity extends Activity {
+     private TextView ret;
+
+    public final static String EXTRA_MESSAGE = "MESSAGE";
+    private ListView obj;
+    DBHelper mydb;
+    private DatabaseMetaData myDatabaseHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-       
-        tv_heading = (TextView) findViewById(R.id.tv_heading);
-        ll_country_list = (ListView) findViewById(R.id.lv_country_list);
-        ll_country_list.setVisibility(View.VISIBLE);
-        cd = new ConnectionDetector(MainActivity.this);
+        mydb = new DBHelper(this);
+        ArrayList array_list = mydb.getAllCotacts();
+        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
 
-        countryDataArrayList = new ArrayList<>();
-        countryDataArrayList1 = new ArrayList<>();
-        getCountryDetails();
-        tv_heading.setOnClickListener(new View.OnClickListener() {
+        obj = (ListView) findViewById(R.id.listView1);
+        obj.setAdapter(arrayAdapter);
+        obj.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View v) {
-                tv_heading.setVisibility(View.GONE);
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                JSONFragment hello = new JSONFragment();
-                fragmentTransaction.add(R.id.fragment_container, hello, "HELLO");
-                fragmentTransaction.commit();
+            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+                // TODO Auto-generated method stub
+                int id_To_Search = arg2 + 1;
+
+                Bundle dataBundle = new Bundle();
+                dataBundle.putInt("id", id_To_Search);
+
+                Intent intent = new Intent(getApplicationContext(), DisplayContact.class);
+
+                intent.putExtras(dataBundle);
+                startActivity(intent);
             }
         });
     }
-    public void getCountryDetails() {
-        if (cd.isConnectingToInternet()) {
-            AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
-            final String url = "http://www.elitedoctorsonline.com/api_mob/browser/society/country.aspx?";
-            RequestParams params = new RequestParams();
-            params.put("lang", "en");
-            asyncHttpClient.get(url, params, new AsyncHttpResponseHandler() {
-                @Override
-                public void onStart() {
-                    super.onStart();
-                }
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    String response = new String(responseBody);
-                    Log.e("Success", "Method called");
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        JSONArray jsonArray = jsonObject.getJSONArray("country_data");
-                        if (!jsonArray.equals("")) {
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject object = jsonArray.getJSONObject(i);
-                                countryData = new CountryData();
-                                countryData.setCou_id(object.getString("cou_id"));
-                                Log.e("cou_id", object.getString("cou_id"));
-                                countryData.setCou_name(object.getString("cou_name"));
-                                Log.e("cou_name", object.getString("cou_name"));
-                                countryData.setCou_image(object.getString("cou_image"));
-                                Log.e("cou_image", object.getString("cou_image"));
-                            }
-                            countryDataArrayList.add(countryData);
-                            customAdapterForListView = new CustomAdapterForListView(MainActivity.this, countryDataArrayList);
-                            ll_country_list.setAdapter(customAdapterForListView);
-                        }
-                    } catch (Exception e) {
-                        Log.e("Exception", e.toString());
-                    }
-                }
-                @Override
-                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    Log.e("Failure", "Method called");
-                }
-                @Override
-                public void onCancel() {
-                    super.onCancel();
-                }
-            });
-        } else {
-            Log.e("No Internet", "Check your Internet Connection");
-        }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
-    private void getDetailsFromArrayList() {
-        if (countryDataArrayList.size() != 0) {
-            Log.e("Size-->", String.valueOf(countryDataArrayList.size()));
-            for (int i = 0; i < countryDataArrayList.size(); i++) {
-                Log.e("id-->" + i, countryDataArrayList.get(i).getCou_id());
-            }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+//        super.onOptionsItemSelected(item);
+
+        switch(item.getItemId())
+        {
+            case R.id.item1:Bundle dataBundle = new Bundle();
+                dataBundle.putInt("id", 0);
+
+                Intent intent = new Intent(getApplicationContext(),DisplayContact.class);
+                intent.putExtras(dataBundle);
+
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
         }
-    }
+     }
+
+
 }
