@@ -1,0 +1,21 @@
+List view = http://www.androidwarriors.com/2015/07/custom-listview-example-android-custom.html
+Intent start activity = http://www.javatpoint.com/android-startactivityforresult-example
+Map Activity = http://www.mysamplecode.com/2011/11/android-google-maps-using-mapactivity.html
+Maps = http://www.androidhive.info/2012/01/android-working-with-google-maps/
+Passing data = http://www.survivingwithandroid.com/2012/09/passing-data-between-activities-2.html
+Text view = http://stackoverflow.com/questions/23990165/setting-value-to-textview-in-android
+Image view = http://www.androidhub4you.com/2014/10/android-custom-shape-imageview-rounded.html
+Image view = http://stackoverflow.com/questions/22105775/imageview-in-circular-through-xml
+Location path = http://www.androidhive.info/2015/02/android-location-api-using-google-play-services
+Shared preference = http://www.compiletimeerror.com/2015/02/android-shared-preferences-example-and-tutorial.html
+Android file based persistence = http://www.vogella.com/tutorials/AndroidFileBasedPersistence/article.html
+Clear field value = http://stackoverflow.com/questions/5308200/clear-text-in-edittext-when-entered
+Activity and fragment = http://stackoverflow.com/questions/25822656/what-are-the-differences-between-activity-and-fragment
+Fragment = https://github.com/codepath/android_guides/wiki/Creating-and-Using-Fragments
+Multiple marker map = http://wptrafficanalyzer.in/blog/adding-multiple-marker-locations-in-google-maps-android-api-v2-and-save-it-in-shared-preferences/
+Push Notification = http://stackoverflow.com/questions/32345768/cannot-resolve-method-setlatesteventinfo
+Camera = http://www.theappguruz.com/blog/android-take-photo-camera-gallery-code-sample
+Navigation menu = http://www.androidhive.info/2013/11/android-sliding-menu-using-navigation-drawer
+Google places API:http://codetheory.in/google-place-api-autocomplete-service-in-android-application/
+Filter adapter : http://stackoverflow.com/questions/24769257/custom-listview-adapter-with-filter-android
+portrait landscape = http://stackoverflow.com/questions/34648995/why-isnt-my-onsaveinstancestate-saving-my-edittext-value-properly-when-going-fr
