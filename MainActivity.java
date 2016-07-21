@@ -1,80 +1,119 @@
-package proveb.gk.com.sqlite;
+package proveb.gk.com.fusedlocationapi;
 
-import android.app.Activity;
-import android.content.Intent;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.TextView;
 
-import java.sql.DatabaseMetaData;
-import java.util.ArrayList;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 
-public class MainActivity extends Activity {
-     private TextView ret;
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    public final static String EXTRA_MESSAGE = "MESSAGE";
-    private ListView obj;
-    DBHelper mydb;
-    private DatabaseMetaData myDatabaseHelper;
+
+    TextView txtOutputLat, txtOutputLon;
+    Location mLastLocation;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
+    String lat, lon;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mydb = new DBHelper(this);
-        ArrayList array_list = mydb.getAllCotacts();
-        ArrayAdapter arrayAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, array_list);
+        setContentView(R.layout.content_main);
 
-        obj = (ListView) findViewById(R.id.listView1);
-        obj.setAdapter(arrayAdapter);
-        obj.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-                // TODO Auto-generated method stub
-                int id_To_Search = arg2 + 1;
 
-                Bundle dataBundle = new Bundle();
-                dataBundle.putInt("id", id_To_Search);
+        txtOutputLat = (TextView) findViewById(R.id.textView1);
+        txtOutputLon = (TextView) findViewById(R.id.textView2);
 
-                Intent intent = new Intent(getApplicationContext(), DisplayContact.class);
 
-                intent.putExtras(dataBundle);
-                startActivity(intent);
-            }
-        });
+        buildGoogleApiClient();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+    public void onConnected(Bundle bundle) {
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-//        super.onOptionsItemSelected(item);
 
-        switch(item.getItemId())
-        {
-            case R.id.item1:Bundle dataBundle = new Bundle();
-                dataBundle.putInt("id", 0);
 
-                Intent intent = new Intent(getApplicationContext(),DisplayContact.class);
-                intent.putExtras(dataBundle);
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(100); // Update location every second
 
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
+
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                mGoogleApiClient);
+        if (mLastLocation != null) {
+            lat = String.valueOf(mLastLocation.getLatitude());
+            lon = String.valueOf(mLastLocation.getLongitude());
+            Log.e("lat=",lat);
+            Log.e("lon=",lon);
 
         }
-     }
+        updateUI();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        lat = String.valueOf(location.getLatitude());
+        lon = String.valueOf(location.getLongitude());
+        updateUI();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        buildGoogleApiClient();
+    }
+
+    synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mGoogleApiClient.disconnect();
+    }
+
+    void updateUI() {
+        txtOutputLat.setText(lat);
+        txtOutputLon.setText(lon);
+    }
 }
